@@ -12,21 +12,6 @@ import java.util.Date;
 
 public class UrlConnector {
 
-	/**
-	 * The HTTP name of the COOKIE constant ".ASPXAUTH".
-	 */
-	private final static String COOKIE_NAME = ".ASPXAUTH";
-	
-	/**
-	 * The cookie value that has the following credentials encrypted:
-	 * <ul>
-	 * <li>Username: EMHVEV</li>
-	 * <li>Password: HSR</li>
-	 * <li>Projectcode: hogeschoolrotterdam</li>
-	 * </ul>
-	 */
-	private final static String COOKIE = "031D91E4004EDBCB01380046003600410045004300340044002D0043004400420045002D0034003900460039002D0038004100410042002D0041004600370044004500410036003000460032004100450000001845ABEA61FDCC010118057263331CCE0142004C0041004100540000002F000000455F6B2DA06B678FFE00188DD805DB4FE1361C4D";
-	
 	private final static String URL_BASE = "http://www.eview.nl/DownloadData.ashx";
 	
 	private final static String URL_BEGIN_DATE = "FromDate";
@@ -170,7 +155,7 @@ public class UrlConnector {
 	public static URLConnection createURLConnection(URL url) {
 		try {
 			URLConnection connection = url.openConnection();
-			connection.addRequestProperty("Cookie", COOKIE_NAME + "=" + COOKIE);
+			connection.addRequestProperty("Cookie", Cookie.COOKIE_NAME + "=" + Cookie.COOKIE);
 			return connection;
 		} catch (IOException e) {
 			e.printStackTrace();
