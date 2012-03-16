@@ -9,5 +9,6 @@ public class HR_EnergizeServlet extends HttpServlet {
 			throws IOException {
 		resp.setContentType("text/plain");
 		resp.getWriter().println("Hello, world");
+		resp.getWriter().println("Werkt bij jordy!");
 	}
 }
