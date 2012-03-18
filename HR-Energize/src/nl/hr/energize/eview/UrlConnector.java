@@ -30,19 +30,38 @@ public class UrlConnector {
 	 */
 	private long endDate;
 	
-	/**
-	 * Sets the requested date to be requested to yesterday
-	 */
+	private TimeGroup timeGroup;
+	
 	public UrlConnector() {
-		Calendar yesterday = Calendar.getInstance();
-		yesterday.add(Calendar.DAY_OF_YEAR, -1);
-		yesterday.set(Calendar.HOUR_OF_DAY, 0);
-		yesterday.set(Calendar.MINUTE, 0);
-		yesterday.set(Calendar.SECOND, 0);
-		yesterday.set(Calendar.MILLISECOND, 0);
-		beginDate = yesterday.getTimeInMillis();
-		yesterday.add(Calendar.DAY_OF_YEAR, 1);
-		endDate = yesterday.getTimeInMillis();
+		this(null);
+	}
+	
+	public UrlConnector(TimeGroup timeGroup) {
+		this(timeGroup, Calendar.getInstance());
+	}
+	
+	public UrlConnector(TimeGroup timeGroup, long date) {
+		if (timeGroup == null)
+			this.timeGroup = TimeGroup.Day;
+		else
+			this.timeGroup = timeGroup;
+		setBothTimes(date);
+	}
+	
+	public UrlConnector(TimeGroup timeGroup, Date date) {
+		if (timeGroup == null)
+			this.timeGroup = TimeGroup.Day;
+		else
+			this.timeGroup = timeGroup;
+		setBothTimes(date);
+	}
+	
+	public UrlConnector(TimeGroup timeGroup, Calendar date) {
+		if (timeGroup == null)
+			this.timeGroup = TimeGroup.Day;
+		else
+			this.timeGroup = timeGroup;
+		setBothTimes(date);
 	}
 	
 	/**
@@ -107,6 +126,54 @@ public class UrlConnector {
 		endDate = roundCalendar(date).getTimeInMillis();
 		return this;
 	}
+
+	/**
+	 * @param timeGroup the timeGroup to set
+	 */
+	public UrlConnector setTimeGroup(TimeGroup timeGroup) {
+		if (timeGroup != null)
+			this.timeGroup = timeGroup;
+		return this;
+	}
+	
+	public UrlConnector setBothTimes(long date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(date);
+		return setBothTimes(calendar);
+	}
+	
+	public UrlConnector setBothTimes(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		return setBothTimes(calendar);
+	}
+	
+	public UrlConnector setBothTimes(Calendar date) {
+		date = roundCalendar(date);
+		beginDate = date.getTimeInMillis();
+		switch (timeGroup) {
+		case Quarter :
+			date.add(Calendar.MINUTE, 15);
+			break;
+		case Hour :
+			date.add(Calendar.HOUR_OF_DAY, 1);
+			break;
+		case Day :
+			date.add(Calendar.DAY_OF_YEAR, 1);
+			break;
+		case Week :
+			date.add(Calendar.WEEK_OF_YEAR, 1);
+			break;
+		case Month :
+			date.add(Calendar.MONTH, 1);
+			break;
+		case Year :
+			date.add(Calendar.YEAR, 1);
+			break;
+		}
+		endDate = date.getTimeInMillis();
+		return this;
+	}
 	
 	public Calendar getBeginDate() {
 		Calendar calendar = Calendar.getInstance();
@@ -121,16 +188,40 @@ public class UrlConnector {
 	}
 	
 	/**
+	 * @return the timeGroup
+	 */
+	public TimeGroup getTimeGroup() {
+		return timeGroup;
+	}
+
+	/**
 	 * Round a calendar to a 15 minute scale.
 	 * @param calendar The calendar to be rounded
 	 * @return A copy of the calendar, which will be rounded.
 	 */
 	private Calendar roundCalendar(Calendar calendar) {
-		int minutes = calendar.get(Calendar.MINUTE);
 		Calendar clone = (Calendar)calendar.clone();
-		clone.set(Calendar.MINUTE, minutes - minutes % 15);
-		clone.set(Calendar.SECOND, 0);
-		clone.set(Calendar.MILLISECOND, 0);
+		switch (timeGroup) {
+		case Year :
+			clone.set(Calendar.MONTH, Calendar.JANUARY);
+		case Month :
+			clone.set(Calendar.DAY_OF_MONTH, 1);
+		case Week :
+			if (timeGroup == TimeGroup.Week) // Prevent repeating day set
+				clone.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		case Day :
+			clone.set(Calendar.HOUR_OF_DAY, 0);
+		case Hour :
+			clone.set(Calendar.MINUTE, 0);
+		case Quarter :
+			if (timeGroup == TimeGroup.Quarter) { // Prevent repeating minute set
+				int minutes = calendar.get(Calendar.MINUTE);
+				clone.set(Calendar.MINUTE, minutes - minutes % 15);
+			}
+		default :
+			clone.set(Calendar.SECOND, 0);
+			clone.set(Calendar.MILLISECOND, 0);
+		}
 		return clone;
 	}
 	
@@ -161,6 +252,14 @@ public class UrlConnector {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	/**
+	 * Used to determine at which time base to round.
+	 * @author Arnold Overwater
+	 */
+	public enum TimeGroup {
+		Quarter, Hour, Day, Week, Month, Year
 	}
 
 }

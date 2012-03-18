@@ -3,6 +3,8 @@ package nl.hr.energize.eview;
 import java.io.IOException;
 import java.util.Calendar;
 
+import nl.hr.energize.eview.UrlConnector.TimeGroup;
+
 public class TotalReaderTest {
 
 	public static void main(String[] args) throws IOException {
@@ -15,10 +17,14 @@ public class TotalReaderTest {
 		date.set(Calendar.HOUR_OF_DAY, 0);
 		date.set(Calendar.MINUTE, 1); // Will be rounded to 0
 		
+		/*
 		UrlConnector connector = new UrlConnector();
 		connector.setBeginDate(date);
 		date.add(Calendar.DAY_OF_YEAR, 1);
 		connector.setEndDate(date);
+		*/
+		
+		UrlConnector connector = new UrlConnector(TimeGroup.Day, date);
 		
 		TotalReader reader = new TotalReader(connector);
 		
