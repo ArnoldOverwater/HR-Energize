@@ -21,6 +21,11 @@ public class UrlConnector {
 	private final static String URL_DATA_CHANNEL = "Datachannel";
 	
 	/**
+	 * The channel of data (EG which building or which meter) to retrieve from.
+	 */
+	private String dataChannel;
+	
+	/**
 	 * The begin date and time to be requested.
 	 */
 	private long beginDate;
@@ -84,13 +89,18 @@ public class UrlConnector {
 		urlSpec.append('&');
 		urlSpec.append(URL_END_DATE).append('=').append(getUrlFragment(endDate));
 		urlSpec.append('&');
-		urlSpec.append(URL_DATA_CHANNEL).append('=').append("DSEDS937732");//Hard coded for now
+		urlSpec.append(URL_DATA_CHANNEL).append('=').append(dataChannel);
 		try {
 			return new URL(urlSpec.toString());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public UrlConnector setDataChannel(String dataChannel) {
+		this.dataChannel = dataChannel;
+		return this;
 	}
 	
 	public UrlConnector setBeginDate(long date) {
@@ -173,6 +183,10 @@ public class UrlConnector {
 		}
 		endDate = date.getTimeInMillis();
 		return this;
+	}
+	
+	public String getDataChannel() {
+		return dataChannel;
 	}
 	
 	public Calendar getBeginDate() {

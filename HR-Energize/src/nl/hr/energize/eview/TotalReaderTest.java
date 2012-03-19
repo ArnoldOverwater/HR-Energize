@@ -26,8 +26,15 @@ public class TotalReaderTest {
 		
 		UrlConnector connector = new UrlConnector(TimeGroup.Day, date);
 		
-		TotalReader reader = new TotalReader(connector);
+		TotalReader reader;
 		
+		reader = new TotalReader(connector.setDataChannel("DSEDS937734"));
+		System.out.println(reader.getTotal());
+		
+		reader = new TotalReader(connector.setDataChannel("DSEDS937735"));
+		System.out.println(reader.getTotal());
+		
+		reader = new TotalReader(connector.setDataChannel("DSEDS937744"));
 		System.out.println(reader.getTotal());
 	}
 
