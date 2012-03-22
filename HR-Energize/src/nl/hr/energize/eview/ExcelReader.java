@@ -21,7 +21,7 @@ public abstract class ExcelReader {
 		processRows(sheet);
 	}
 
-	private void processRows(HSSFSheet sheet) {
+	protected void processRows(HSSFSheet sheet) {
 		int lastRowNumber = sheet.getLastRowNum();
 		for (int i = 1; i < lastRowNumber; i++)
 			processRow(sheet.getRow(i));
