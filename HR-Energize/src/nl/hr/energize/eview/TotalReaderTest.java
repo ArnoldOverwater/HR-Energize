@@ -14,9 +14,6 @@ public class TotalReaderTest {
 		date.set(Calendar.MONTH, Calendar.FEBRUARY);
 		date.set(Calendar.DAY_OF_MONTH, 29);
 		
-		date.set(Calendar.HOUR_OF_DAY, 0);
-		date.set(Calendar.MINUTE, 1); // Will be rounded to 0
-		
 		/*
 		UrlConnector connector = new UrlConnector();
 		connector.setBeginDate(date);
