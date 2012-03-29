@@ -1,3 +1,9 @@
+<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
+<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
+<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
+<%@ page import="com.google.appengine.api.datastore.Entity" %>
+<%@ page import="com.google.appengine.api.datastore.Query" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -8,220 +14,61 @@
 		<div id="wrapper">
 			<div id="header">
 					<h2 id="title">
-						Hogeschool Rotterdam - HREnegerize
+						Hogeschool Rotterdam - HR Energize
 					</h2>
 					<img id="headerimage" src="/images/hrlogo.jpg"/>
 			</div>
 			<div id="main" style="clear:both;">
-				<div id="menu">
-					<a class="lmb" href="/">Home</a>
-					<a class="lmb" href="/">Locatie beheer</a>
-					<a class="lmb" href="/">Actuele meldingen</a>
-				</div>
-				<div id="content">
+				<%
+					DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+					Query query = new Query("Pand").addSort("gebouw", Query.SortDirection.ASCENDING);
+					List<Entity> panden = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(14));
+
+					for(int i = 0; i <panden.size(); i++){
+					Entity pand = panden.get(i);
+					long status = (Long) pand.getProperty("status");
+					String message = null;
+					
+				%>
 					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
+						<%if(status == 0){ %>
+							<img class="stoplicht" src="/images/stoplicht_uit_middel.png" />
+							<%message = "N/A"; %>
+						<%}if(status == 1){ %>
+							<img class="stoplicht" src="/images/stoplicht_groen_middel.png" />
+							<%message = "in orde"; %>
+						<%}else if(status == 2){ %>
+							<img class="stoplicht" src="/images/stoplicht_oranje_middel.png" />
+							<%message = "redelijk"; %>
+						<%}else if(status == 3){%>
+							<img class="stoplicht" src="/images/stoplicht_rood_middel.png" />
+							<%message = "ALARM!"; %>
+						<%} %>
+						<table class="font12">
 							<tr>
-								<th colspan="2">Blaak 10</th>
+								<th colspan="2"><%=  pand.getProperty("gebouw")  %></th>
 							</tr>
 							<tr>
 								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
+								<td><%= pand.getProperty("Ggister") %> kWh</td>
 							</tr>
 							<tr>
 								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
+								<td><%= pand.getProperty("meting") %> kWh</td>
 							</tr>
 							<tr>
 								<td>status:</td>
-								<td>in orde</td>
+								<td><%= message %></td>
+							</tr>
+							<tr>
+								<td>opmerking:</td>
+								<td><%= pand.getProperty("opmerking") %></td>
 							</tr>
 						</table>
 					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">G.J. de Jonghweg 6</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td>5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td>5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Heijplaatstraat 21</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Kralingse Zoom 91</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Mauritsstraat 36</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Museumpark 40</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">P. de Hoochstraat 3</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">P. de Hoochweg 129</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Wijnhaven 107</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
-					<div id="locatie">
-						<img style="margin-top:10px; margin-left:39px;" src="/images/stoplicht_groen_middel.png" />
-						<table class="font15">
-							<tr>
-								<th colspan="2">Wijnhaven 61</th>
-							</tr>
-							<tr>
-								<td>geschat:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>gemeten:</td>
-								<td style="font-size:15px;">5126 KWh</td>
-							</tr>
-							<tr>
-								<td>status:</td>
-								<td>in orde</td>
-							</tr>
-						</table>
-					</div>
+					<%} %>
 				</div>
 			</div>
-		
 		</div>
 	</body>
 </html>

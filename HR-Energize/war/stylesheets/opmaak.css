@@ -28,11 +28,12 @@ border:1px solid black;
 #title{
 float:left; 
 margin-bottom:0px; 
-margin-top:55px;
+margin-top:68px;
 }
 
 #headerimage{
 float:right;
+margin-bottom:5px;
 }
 
 #menu{
@@ -44,8 +45,13 @@ margin-top:10px;
 padding-top:50px;
 }
 
-.font15{
-font-size:15px;
+.font12{
+font-size:12px;
+}
+
+.stoplicht{
+margin-top:10px;
+margin-left:39px;
 }
 
 a.lmb, a.lmb:link, a.lmb:visited{

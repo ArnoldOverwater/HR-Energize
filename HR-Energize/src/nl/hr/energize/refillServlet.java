@@ -20,19 +20,26 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 
 @SuppressWarnings("serial")
-public class HR_EnergizeServlet extends HttpServlet {
+public class refillServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
+		  Calendar dateGisterMeting = Calendar.getInstance();
+		  dateGisterMeting.add(Calendar.DAY_OF_MONTH, -1);
+		
 		  Calendar dateGister = Calendar.getInstance();
-		  dateGister.set(Calendar.DAY_OF_MONTH, (dateGister.get(Calendar.DAY_OF_MONTH)-1));
+		  dateGister.add(Calendar.DAY_OF_MONTH, 6);
+		  
+		  Calendar dateVandaag = Calendar.getInstance();
 		  
 		  Calendar dateMorgen = Calendar.getInstance();
-		  dateMorgen.set(Calendar.DAY_OF_MONTH, (dateMorgen.get(Calendar.DAY_OF_MONTH))+1);
+		  dateMorgen.add(Calendar.DAY_OF_MONTH, 1);
 		  
 		  SimpleDateFormat format = new SimpleDateFormat("d-M-y H:mm:ss");
-		  String metingDatum = format.format(dateGister.getTimeInMillis());
+		  String metingDatum = format.format(dateGisterMeting.getTimeInMillis());
 		  
+		  UrlConnector connectorGisterMeting = new UrlConnector(TimeGroup.Day, dateGisterMeting);
 		  UrlConnector connectorGister = new UrlConnector(TimeGroup.Day, dateGister);
+		  UrlConnector connectorVandaag = new UrlConnector(TimeGroup.Day, dateVandaag);
 		  UrlConnector connectorMorgen = new UrlConnector(TimeGroup.Day, dateMorgen);
 		  
 		  TotalReader reader;
@@ -44,15 +51,17 @@ public class HR_EnergizeServlet extends HttpServlet {
 		  for(Entity result: pq.asIterable()){
 			  
 			  String DChoofdmeting = (String) result.getProperty("DChoofdmeting");
+			  
 			  reader = new TotalReader(connectorGister.setDataChannel(DChoofdmeting));
-			  
-			  double Ggister = (Double) result.getProperty("Gvandaag");
-			  double meting = roundTwoDecimals(reader.getTotal());
-			  
-			  result.setProperty("datum", metingDatum);
-			  result.setProperty("meting", meting);
+			  double Ggister = roundTwoDecimals(reader.getTotal());
 			  result.setProperty("Ggister", Ggister);
-			  result.setProperty("Gvandaag", result.getProperty("Gmorgen")); 
+			  reader = new TotalReader(connectorVandaag.setDataChannel(DChoofdmeting));
+			  result.setProperty("Gvandaag", roundTwoDecimals(reader.getTotal()));
+			  reader = new TotalReader(connectorMorgen.setDataChannel(DChoofdmeting));
+			  result.setProperty("Gmorgen", roundTwoDecimals(reader.getTotal()));
+			  reader = new TotalReader(connectorGisterMeting.setDataChannel(DChoofdmeting));
+			  double meting = roundTwoDecimals(reader.getTotal());
+			  result.setProperty("meting", meting);
 			  
 			  if(meting >(Ggister+(Ggister*0.10))){
 				  result.setProperty("status", 3);
@@ -61,9 +70,7 @@ public class HR_EnergizeServlet extends HttpServlet {
 			  }else if(meting > 0.0){
 				  result.setProperty("status", 1);
 			  }else result.setProperty("status", 0);
-			
-			  reader = new TotalReader(connectorMorgen.setDataChannel(DChoofdmeting));
-			  result.setProperty("Gmorgen", roundTwoDecimals(reader.getTotal()));
+			  
 			  datastore.put(result);
 		  }
 		  
