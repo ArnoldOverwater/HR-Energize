@@ -27,6 +27,7 @@
 					for(int i = 0; i <panden.size(); i++){
 					Entity pand = panden.get(i);
 					long status = (Long) pand.getProperty("status");
+					String opmerking = (String) pand.getProperty("opmerking");
 					String message = null;
 					
 				%>
@@ -50,7 +51,7 @@
 							</tr>
 							<tr>
 								<td>geschat:</td>
-								<td><%= pand.getProperty("Ggister") %> kWh</td>
+								<td><%= pand.getProperty("schatting") %> kWh</td>
 							</tr>
 							<tr>
 								<td>gemeten:</td>
@@ -60,10 +61,12 @@
 								<td>status:</td>
 								<td><%= message %></td>
 							</tr>
+							<% if(!(opmerking.equals(""))){ %>
 							<tr>
 								<td>opmerking:</td>
 								<td><%= pand.getProperty("opmerking") %></td>
 							</tr>
+							<%}%>
 						</table>
 					</div>
 					<%} %>

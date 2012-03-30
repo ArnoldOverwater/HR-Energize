@@ -1,6 +1,7 @@
 package nl.hr.energize;
 
 import java.io.IOException;
+import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -18,53 +19,46 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.FilterOperator;
 
 @SuppressWarnings("serial")
 public class HR_EnergizeServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-		  Calendar dateGister = Calendar.getInstance();
-		  dateGister.set(Calendar.DAY_OF_MONTH, (dateGister.get(Calendar.DAY_OF_MONTH)-1));
+		  Calendar date1 = Calendar.getInstance();
+		  date1.add(Calendar.DAY_OF_MONTH, -1);
+		  Calendar date2 = Calendar.getInstance();
+		  date2.add(Calendar.DAY_OF_MONTH, -2);
 		  
-		  Calendar dateMorgen = Calendar.getInstance();
-		  dateMorgen.set(Calendar.DAY_OF_MONTH, (dateMorgen.get(Calendar.DAY_OF_MONTH))+1);
-		  
-		  SimpleDateFormat format = new SimpleDateFormat("d-M-y H:mm:ss");
-		  String metingDatum = format.format(dateGister.getTimeInMillis());
-		  
-		  UrlConnector connectorGister = new UrlConnector(TimeGroup.Day, dateGister);
-		  UrlConnector connectorMorgen = new UrlConnector(TimeGroup.Day, dateMorgen);
-		  
-		  TotalReader reader;
 		 
 		  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		  Query q = new Query("Pand");
-		  PreparedQuery pq = datastore.prepare(q);
+		  Query panden = new Query("Pand");
+		  PreparedQuery pq = datastore.prepare(panden);
 		  
 		  for(Entity result: pq.asIterable()){
 			  
 			  String DChoofdmeting = (String) result.getProperty("DChoofdmeting");
-			  reader = new TotalReader(connectorGister.setDataChannel(DChoofdmeting));
 			  
-			  double Ggister = (Double) result.getProperty("Gvandaag");
+			  UrlConnector connector = new UrlConnector(TimeGroup.Day, date1);
+			  TotalReader reader = new TotalReader(connector.setDataChannel(DChoofdmeting));
+			  
+			  Query metingen = new Query("Weekmeting");
+			  metingen.addFilter("DChoofdmeting", FilterOperator.EQUAL, DChoofdmeting);
+			  PreparedQuery pqMeting = datastore.prepare(metingen);
+			  Entity weekdag = pqMeting.asSingleEntity();
+			  weekdag.setProperty(""+date2.get(Calendar.DAY_OF_WEEK), result.getProperty("meting"));
+			  
+			 
+			 
 			  double meting = roundTwoDecimals(reader.getTotal());
-			  
-			  result.setProperty("datum", metingDatum);
+			  double gemiddelde =  getAverage(weekdag, date1);
 			  result.setProperty("meting", meting);
-			  result.setProperty("Ggister", Ggister);
-			  result.setProperty("Gvandaag", result.getProperty("Gmorgen")); 
+			  result.setProperty("schatting", gemiddelde);
+			  result.setProperty("status", getStatus((Double)result.getProperty("schatting"), meting));
 			  
-			  if(meting >(Ggister+(Ggister*0.10))){
-				  result.setProperty("status", 3);
-			  }else if(meting > (Ggister+(Ggister*0.05))){
-				  result.setProperty("status", 2);
-			  }else if(meting > 0.0){
-				  result.setProperty("status", 1);
-			  }else result.setProperty("status", 0);
-			
-			  reader = new TotalReader(connectorMorgen.setDataChannel(DChoofdmeting));
-			  result.setProperty("Gmorgen", roundTwoDecimals(reader.getTotal()));
+			 
 			  datastore.put(result);
+			  datastore.put(weekdag);
 		  }
 		  
 	}
@@ -74,5 +68,33 @@ public class HR_EnergizeServlet extends HttpServlet {
 		String value = df.format(getal);
 		value = value.replaceAll(",", ".");
 		return Double.valueOf(value);
+	}
+	
+	public double getAverage(Entity entity, Calendar calendar){
+		double sum = 0;
+		int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
+		
+		if(weekDay > 0 && weekDay <7){
+			for(int i = 2; i < 7; i++){
+				sum += (Double) entity.getProperty(i+"");
+			}
+			sum /= 5; 
+		}else{
+			sum += (Double) entity.getProperty("1");
+			sum += (Double) entity.getProperty("7");
+			sum /= 2;
+		}
+		return roundTwoDecimals(sum);
+	}
+	
+	public int getStatus(double gemiddelde, double meting){
+		
+		 if(meting >(gemiddelde+(gemiddelde*0.10))){
+			 return 3;
+		  } else if(meting > (gemiddelde+(gemiddelde*0.05))){
+			  return 2;
+		  }else if(meting > 0.0){
+			  return 1;
+		  }else return 0;
 	}
 }

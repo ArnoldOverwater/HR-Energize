@@ -28,6 +28,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>refill</servlet-name>
 		<url-pattern>/refill</url-pattern>
 	</servlet-mapping>
+	<servlet>
+	<servlet-name>modify</servlet-name>
+		<servlet-class>nl.hr.energize.modifyServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>modify</servlet-name>
+		<url-pattern>/modify</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
