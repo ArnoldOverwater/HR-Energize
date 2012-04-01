@@ -30,9 +30,7 @@ public class Cookie {
 			Scanner scanner = new Scanner(new File(FILE_NAME));
 			return scanner.nextLine();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.exit(-1);
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 
