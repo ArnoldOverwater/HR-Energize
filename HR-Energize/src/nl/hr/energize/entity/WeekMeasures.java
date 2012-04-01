@@ -12,6 +12,15 @@ public class WeekMeasures {
 		
 	}
 	
+	public static Entity setDayMeting(Entity entity, int day, double value) {
+		entity.setProperty(Integer.toString(day), value);
+		return entity;
+	}
+	
+	public static double getDayMeting(Entity entity, int day) {
+		return (Double)entity.getProperty(Integer.toString(day));
+	}
+	
 	public static Entity getWeekMeasureForDataChannel(DatastoreService datastore, String dataChannel) {
 		Query query = new Query(Entities.EntityKind.WeekMeasures.getKindName());
 		query.addFilter("DChoofdmeting", FilterOperator.EQUAL, dataChannel);
