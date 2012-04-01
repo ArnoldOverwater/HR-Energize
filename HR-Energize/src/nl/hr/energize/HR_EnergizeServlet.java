@@ -1,15 +1,14 @@
 package nl.hr.energize;
 
 import java.io.IOException;
-import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-
 import javax.servlet.http.*;
 
+import nl.hr.energize.entity.Entities;
+import nl.hr.energize.entity.Entities.EntityKind;
+import nl.hr.energize.entity.Premises;
+import nl.hr.energize.entity.WeekMeasures;
 import nl.hr.energize.eview.TotalReader;
 import nl.hr.energize.eview.UrlConnector;
 import nl.hr.energize.eview.UrlConnector.TimeGroup;
@@ -17,9 +16,6 @@ import nl.hr.energize.eview.UrlConnector.TimeGroup;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.FilterOperator;
 
 @SuppressWarnings("serial")
 public class HR_EnergizeServlet extends HttpServlet {
@@ -32,21 +28,16 @@ public class HR_EnergizeServlet extends HttpServlet {
 		  
 		 
 		  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		  Query panden = new Query("Pand");
-		  PreparedQuery pq = datastore.prepare(panden);
 		  
-		  for(Entity result: pq.asIterable()){
+		  for(Entity result: new Entities(datastore, EntityKind.Premises)){
 			  
-			  String DChoofdmeting = (String) result.getProperty("DChoofdmeting");
+			  String DChoofdmeting = Premises.getDCHoofdMeting(result);
 			  
 			  UrlConnector connector = new UrlConnector(TimeGroup.Day, date1);
 			  TotalReader reader = new TotalReader(connector.setDataChannel(DChoofdmeting));
 			  
-			  Query metingen = new Query("Weekmeting");
-			  metingen.addFilter("DChoofdmeting", FilterOperator.EQUAL, DChoofdmeting);
-			  PreparedQuery pqMeting = datastore.prepare(metingen);
-			  Entity weekdag = pqMeting.asSingleEntity();
-			  weekdag.setProperty(""+date2.get(Calendar.DAY_OF_WEEK), result.getProperty("meting"));
+			  Entity weekdag = WeekMeasures.getWeekMeasureForDataChannel(datastore, DChoofdmeting);
+			  weekdag.setProperty(Integer.toString(date2.get(Calendar.DAY_OF_WEEK)), result.getProperty("meting"));
 			  
 			 
 			 
@@ -76,7 +67,7 @@ public class HR_EnergizeServlet extends HttpServlet {
 		
 		if(weekDay > 0 && weekDay <7){
 			for(int i = 2; i < 7; i++){
-				sum += (Double) entity.getProperty(i+"");
+				sum += (Double) entity.getProperty(Integer.toString(i));
 			}
 			sum /= 5; 
 		}else{
