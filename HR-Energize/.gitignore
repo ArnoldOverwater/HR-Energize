@@ -1,3 +1,4 @@
 /bin
 /war/WEB-INF/classes
+/war/WEB-INF/appengine-generated
 _eview_cookie
