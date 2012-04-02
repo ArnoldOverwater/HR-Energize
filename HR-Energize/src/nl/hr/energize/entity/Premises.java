@@ -1,11 +1,30 @@
 package nl.hr.energize.entity;
 
+import java.text.DecimalFormat;
+
 import com.google.appengine.api.datastore.Entity;
 
 public class Premises {
+	
+	private final static double ALARM_PERCENTAGE = 0.10;
+	
+	private final static double REASONABLE_PERCENTAGE = 0.05;
 
 	private Premises() {
 		
+	}
+	
+	public static Status getStatusForPercentage(double percentage) {
+		if (percentage > ALARM_PERCENTAGE)
+			return Status.Alarm;
+		else if (percentage > REASONABLE_PERCENTAGE)
+			return Status.Reasonable;
+		else
+			return Status.AllRight;
+	}
+	
+	public static Status getStatusForMeasures(double estimated, double actual) {
+		return getStatusForPercentage((actual - estimated) / estimated);
 	}
 	
 	public static Entity setDCHoofdMeting(Entity entity, String DCHoofdMeting) {
@@ -14,12 +33,12 @@ public class Premises {
 	}
 	
 	public static Entity setMeting(Entity entity, double meting) {
-		entity.setProperty("meting", meting);
+		entity.setProperty("meting", roundTwoDecimals(meting));
 		return entity;
 	}
 	
 	public static Entity setSchatting(Entity entity, double schatting) {
-		entity.setProperty("schatting", schatting);
+		entity.setProperty("schatting", roundTwoDecimals(schatting));
 		return entity;
 	}
 	
@@ -33,6 +52,14 @@ public class Premises {
 		else
 			entity.setProperty("status", 0);
 		return entity;
+	}
+	
+	public static Entity setStatusForPercentage(Entity entity, double percentage) {
+		return setStatus(entity, getStatusForPercentage(percentage));
+	}
+	
+	public static Entity setStatusForMeasures(Entity entity, double estimated, double actual) {
+		return setStatus(entity, getStatusForMeasures(estimated, actual));
 	}
 	
 	public static String getDCHoofdMeting(Entity entity) {
@@ -59,6 +86,13 @@ public class Premises {
 		default :
 			return null;
 		}
+	}
+	
+	private static double roundTwoDecimals(double getal){
+		DecimalFormat df = new DecimalFormat(".##");
+		String value = df.format(getal);
+		value = value.replaceAll(",", ".");
+		return Double.parseDouble(value);
 	}
 	
 	public enum Status {

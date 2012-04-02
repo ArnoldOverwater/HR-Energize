@@ -1,7 +1,6 @@
 package nl.hr.energize;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import javax.servlet.http.*;
 
@@ -37,15 +36,15 @@ public class HR_EnergizeServlet extends HttpServlet {
 			  TotalReader reader = new TotalReader(connector.setDataChannel(DChoofdmeting));
 			  
 			  Entity weekdag = WeekMeasures.getWeekMeasureForDataChannel(datastore, DChoofdmeting);
-			  weekdag.setProperty(Integer.toString(date2.get(Calendar.DAY_OF_WEEK)), result.getProperty("meting"));
+			  WeekMeasures.setDayMeting(weekdag, date2.get(Calendar.DAY_OF_WEEK), Premises.getMeting(result));
 			  
 			 
 			 
-			  double meting = roundTwoDecimals(reader.getTotal());
-			  double gemiddelde =  getAverage(weekdag, date1);
-			  result.setProperty("meting", meting);
-			  result.setProperty("schatting", gemiddelde);
-			  result.setProperty("status", getStatus((Double)result.getProperty("schatting"), meting));
+			  double meting = reader.getTotal();
+			  double gemiddelde = WeekMeasures.getAverage(weekdag, date1);
+			  Premises.setMeting(result, meting);
+			  Premises.setSchatting(result, gemiddelde);
+			  Premises.setStatusForMeasures(result, Premises.getSchatting(result), meting);
 			  
 			 
 			  datastore.put(result);
@@ -54,38 +53,4 @@ public class HR_EnergizeServlet extends HttpServlet {
 		  
 	}
 	
-	public double roundTwoDecimals(double getal){
-		DecimalFormat df = new DecimalFormat(".##");
-		String value = df.format(getal);
-		value = value.replaceAll(",", ".");
-		return Double.valueOf(value);
-	}
-	
-	public double getAverage(Entity entity, Calendar calendar){
-		double sum = 0;
-		int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
-		
-		if(weekDay > 0 && weekDay <7){
-			for(int i = 2; i < 7; i++){
-				sum += (Double) entity.getProperty(Integer.toString(i));
-			}
-			sum /= 5; 
-		}else{
-			sum += (Double) entity.getProperty("1");
-			sum += (Double) entity.getProperty("7");
-			sum /= 2;
-		}
-		return roundTwoDecimals(sum);
-	}
-	
-	public int getStatus(double gemiddelde, double meting){
-		
-		 if(meting >(gemiddelde+(gemiddelde*0.10))){
-			 return 3;
-		  } else if(meting > (gemiddelde+(gemiddelde*0.05))){
-			  return 2;
-		  }else if(meting > 0.0){
-			  return 1;
-		  }else return 0;
-	}
 }
