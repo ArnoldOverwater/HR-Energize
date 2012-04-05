@@ -12,6 +12,15 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 		<servlet-name>HR_Energize</servlet-name>
 		<url-pattern>/hr_energize</url-pattern>
 	</servlet-mapping>
+	
+		<servlet>
+		<servlet-name>test</servlet-name>
+		<servlet-class>nl.hr.energize.Test</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>test</servlet-name>
+		<url-pattern>/mail</url-pattern>
+	</servlet-mapping>
 	<!--
 	<servlet>
 		<servlet-name>clean</servlet-name>

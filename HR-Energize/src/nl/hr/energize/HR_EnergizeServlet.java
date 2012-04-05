@@ -1,6 +1,7 @@
 package nl.hr.energize;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import javax.servlet.http.*;
 
@@ -25,8 +26,10 @@ public class HR_EnergizeServlet extends HttpServlet {
 		  Calendar date2 = Calendar.getInstance();
 		  date2.add(Calendar.DAY_OF_MONTH, -2);
 		  
+			SimpleDateFormat format = new SimpleDateFormat("d-M-y");
 		 
 		  DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		  
 		  
 		  for(Entity result: new Entities(datastore, EntityKind.Premises)){
 			  
@@ -46,6 +49,11 @@ public class HR_EnergizeServlet extends HttpServlet {
 			  Premises.setSchatting(result, gemiddelde);
 			  Premises.setStatusForMeasures(result, Premises.getSchatting(result), meting);
 			  
+			 
+			  if(Premises.getStatus(result) == Premises.Status.Alarm){
+				  Mail mail = new Mail();
+				  mail.sendEmail(result, format.format(date1.getTime()));
+			  }
 			 
 			  datastore.put(result);
 			  datastore.put(weekdag);
