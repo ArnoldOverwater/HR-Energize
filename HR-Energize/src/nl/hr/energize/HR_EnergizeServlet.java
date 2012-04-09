@@ -26,7 +26,7 @@ public class HR_EnergizeServlet extends HttpServlet {
 		Calendar date2 = Calendar.getInstance();
 		date2.add(Calendar.DAY_OF_MONTH, -2);
 
-		SimpleDateFormat format = new SimpleDateFormat("d-M-y");
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
