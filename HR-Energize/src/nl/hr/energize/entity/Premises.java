@@ -66,12 +66,28 @@ public class Premises {
 		return entity.getProperty("DChoofdmeting").toString();
 	}
 	
+	public static String getName(Entity entity) {
+		return entity.getProperty("gebouw").toString();
+	}
+	
+	public static String getExtra(Entity entity) {
+		String extra = entity.getProperty("opmerking").toString();
+		if (extra.isEmpty())
+			return null;
+		else
+			return extra;
+	}
+	
 	public static double getMeting(Entity entity) {
 		return (Double)entity.getProperty("meting");
 	}
 	
 	public static double getSchatting(Entity entity) {
 		return (Double)entity.getProperty("schatting");
+	}
+	
+	public static String getEmail(Entity entity) {
+		return entity.getProperty("e-mail").toString();
 	}
 	
 	public static Status getStatus(Entity entity) {
